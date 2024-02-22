@@ -5,8 +5,7 @@ export class SimpleSlider {
       .querySelector(".slider-container");
 
     this.options = options; // options - объект с пользовательскими настройками
-    this.options.indicatorsType = options.indicatorsType || "default";
-    // this.options.navigationType = options.navigationType || "default";
+    this.options.typeSlider = options.typeSlider || "default";
 
     this.currentIndex = 0; // currentIndex - индекс активного слайда.
     this.init();
@@ -15,15 +14,8 @@ export class SimpleSlider {
   init() {
     this.slides = Array.from(this.container.children); // Все слайды внутри контейнера
 
-    // ЕСЛИ В OPTIONS "navigation: true", ТО ПОЯВЛЯЮТСЯ КНОПКИ НАВИГАЦИИ
-    if (this.options.navigation) {
-      this.createNavigationButtons();
-    }
-
-    // ЕСЛИ В OPTIONS "indicators: true", ТО ПОЯВЛЯЕТСЯ ПАГИНАЦИЯ
-    if (this.options.indicators) {
-      this.createIndicators();
-    }
+    this.createNavigationButtons();
+    this.createIndicators();
 
     this.updateActiveSlide();
   }
@@ -32,31 +24,56 @@ export class SimpleSlider {
     this.slides.forEach((slide) => slide.classList.remove("active")); // Деактивируем все слайды
     this.slides[this.currentIndex].classList.add("active"); // Активируем текущий слайд
 
-    this.updateIndicators();
+    if (this.options.typeSlider !== "type9") {
+      this.updateIndicators();
+    }
   }
 
   // КНОПКИ ПЕРЕХОДА <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
   createNavigationButtons() {
-    // КНОПКА "НАЗАД". <-
-    this.prevButton = document.createElement("button");
-    this.prevButton.classList.add("prev");
+    switch (this.options.typeSlider) {
+      case "type1":
+        // КНОПКА "НАЗАД". <-
+        this.prevButton = document.createElement("button");
+        this.prevButton.classList.add("prev");
+        // КНОПКА "ВПЕРЕД". ->
+        this.nextButton = document.createElement("button");
+        this.nextButton.classList.add("next");
+        break;
+      case "type8":
+        this.prevButton = document.createElement("button");
+        this.prevButton.classList.add("prev-bottom");
 
-    // if (this.options.navigationType === "arrowsBottom") {
-    //   this.prevButton.classList.add("prev-arrows-bottom");
-    // }
+        this.nextButton = document.createElement("button");
+        this.nextButton.classList.add("next-bottom");
+        break;
 
-    this.prevButton.addEventListener("click", () => this.prev());
-    this.container.appendChild(this.prevButton);
+      case "type9":
+        this.buttonsWrapper = document.createElement("div");
+        this.buttonsWrapper.classList.add("buttons-wrapper");
 
-    // КНОПКА "ВПЕРЕД". ->
-    this.nextButton = document.createElement("button");
-    this.nextButton.classList.add("next");
-    if (this.options.navigationType === "arrowsBottom") {
-      this.prevButton.classList.add("next-arrows-bottom");
+        this.prevButton = document.createElement("button");
+        this.prevButton.classList.add("prev-center");
+        // КНОПКА "НАЗАД". <-
+        this.nextButton = document.createElement("button");
+        this.nextButton.classList.add("next-center");
+
+        this.buttonsWrapper.appendChild(this.prevButton);
+        this.buttonsWrapper.appendChild(this.nextButton);
+
+        this.container.appendChild(this.buttonsWrapper);
+        break;
+      default:
+        return;
     }
 
+    this.prevButton.addEventListener("click", () => this.prev());
     this.nextButton.addEventListener("click", () => this.next());
-    this.container.appendChild(this.nextButton);
+
+    if (this.options.typeSlider !== "type9") {
+      this.container.appendChild(this.prevButton);
+      this.container.appendChild(this.nextButton);
+    }
   }
 
   prev() {
@@ -78,63 +95,60 @@ export class SimpleSlider {
   // ПАГИНАЦИЯ <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
   createIndicators() {
-    this.indicatorsContainer =
-      this.container.querySelector(".slider-indicators") ||
-      this.createIndicatorsContainer();
+    if (this.options.typeSlider && this.options.typeSlider !== "type9") {
+      this.indicatorsContainer =
+        this.container.querySelector(".slider-indicators") ||
+        this.createIndicatorsContainer();
 
-    this.indicatorsContainer.innerHTML = "";
+      this.indicatorsContainer.innerHTML = "";
 
-    this.slides.forEach((_, index) => {
-      const indicator = document.createElement("div");
-      indicator.className = "indicator";
+      this.slides.forEach((_, index) => {
+        const indicator = document.createElement("div");
+        indicator.className = "indicator";
 
-      // ЕСЛИ ТИП "NUMBERED"
-      if (this.options.indicatorsType === "numbered") {
-        indicator.classList.add("indicator-numbered");
-      }
+        if (this.options.typeSlider === "type2") {
+          indicator.classList.add("indicator-numbered");
+        }
 
-      // ЕСЛИ ТИП "HIGHLIGHTED"
-      if (this.options.indicatorsType === "highlighted") {
-        this.indicatorsContainer.classList.add("slider-indicators-highlighted");
-        indicator.classList.add("indicator-highlighted");
-      }
+        if (this.options.typeSlider === "type3") {
+          this.indicatorsContainer.classList.add(
+            "slider-indicators-highlighted"
+          );
+          indicator.classList.add("indicator-highlighted");
+        }
 
-      // ЕСЛИ ТИП "ACTIVEPOINTWIDEONE"
-      if (this.options.indicatorsType === "activePointWideOne") {
-        indicator.classList.add("indicator-active-point-wide");
-      }
+        if (this.options.typeSlider === "type4") {
+          indicator.classList.add("indicator-active-point-wide");
+        }
 
-      // ЕСЛИ ТИП "ACTIVEPOINTWIDETWO"
-      if (this.options.indicatorsType === "activePointWideTwo") {
-        this.indicatorsContainer.classList.add(
-          "slider-indicators-active-point-wide"
-        );
-        indicator.classList.add("indicator-active-point-wide");
-      }
+        if (this.options.typeSlider === "type5") {
+          this.indicatorsContainer.classList.add(
+            "slider-indicators-active-point-wide"
+          );
+          indicator.classList.add("indicator-active-point-wide");
+        }
 
-      // ЕСЛИ ТИП "LINEAR"
-      if (this.options.indicatorsType === "linear") {
-        this.indicatorsContainer.classList.add("slider-indicators-linear");
-        indicator.classList.add("indicator-linear");
-      }
+        if (this.options.typeSlider === "type6") {
+          this.indicatorsContainer.classList.add("slider-indicators-linear");
+          indicator.classList.add("indicator-linear");
+        }
 
-      // ЕСЛИ ТИП "ACTIVELINEARWIDE"
-      if (this.options.indicatorsType === "activeLinearWide") {
-        this.indicatorsContainer.classList.add("slider-indicators-linear");
-        indicator.classList.add("indicator-active-linear-wide");
-      }
+        if (this.options.typeSlider === "type7") {
+          this.indicatorsContainer.classList.add("slider-indicators-linear");
+          indicator.classList.add("indicator-active-linear-wide");
+        }
 
-      // ЕСЛИ ТИП "SMALLPOINTS"
-      if (this.options.indicatorsType === "smallPoints") {
-        indicator.classList.add("indicator-small-points");
-      }
+        if (this.options.typeSlider === "type8") {
+          indicator.classList.add("indicator-small-points");
+        }
 
-      indicator.addEventListener("click", () => this.goToSlide(index));
+        indicator.addEventListener("click", () => this.goToSlide(index));
 
-      this.indicatorsContainer.appendChild(indicator);
-    });
+        this.indicatorsContainer.appendChild(indicator);
 
-    this.updateIndicators();
+        this.updateIndicators();
+      });
+    }
   }
 
   updateIndicators() {
@@ -143,11 +157,7 @@ export class SimpleSlider {
       indicator.textContent = "";
       indicator.classList.toggle("active", index === this.currentIndex);
 
-      //ЕСЛИ ТИП "NUMBERED"
-      if (
-        this.options.indicatorsType === "numbered" &&
-        index === this.currentIndex
-      ) {
+      if (this.options.typeSlider === "type2" && index === this.currentIndex) {
         indicator.textContent = index + 1;
       }
     });
