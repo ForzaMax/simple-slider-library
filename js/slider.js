@@ -4,8 +4,12 @@ export class SimpleSlider {
       .querySelector(selector)
       .querySelector(".slider-container");
 
-    this.options = options; // options - объект с пользовательскими настройками
-    this.options.typeSlider = options.typeSlider || "default";
+    this.options = {
+      containerWidth: "100%", // Значение по умолчанию
+      containerHeight: "400px", // Значение по умолчанию
+      typeSlider: "default", // Значение по умолчанию
+      ...options,
+    };
 
     this.currentIndex = 0; // currentIndex - индекс активного слайда.
     this.init();
@@ -14,12 +18,41 @@ export class SimpleSlider {
   init() {
     this.slides = Array.from(this.container.children); // Все слайды внутри контейнера
 
+    // Кастомные размеры слайдера
+    this.container.style.width = this.options.containerWidth;
+    this.container.style.height = this.options.containerHeight;
+
     this.createNavigationButtons();
     this.createIndicators();
-
     this.updateActiveSlide();
+    this.addTouch();
   }
 
+  addTouch() {
+    let startX = 0; // Начальная позиция касания по оси X
+    let distance = 0; // Расстояние перемещения
+
+    this.container.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
+      distance = 0;
+    });
+
+    this.container.addEventListener("touchmove", (e) => {
+      const touchCurrentX = e.touches[0].clientX;
+      distance = touchCurrentX - startX;
+    });
+
+    this.container.addEventListener("touchend", () => {
+      if (distance < -30) {
+        // Свайп влево
+        this.next();
+      } else if (distance > 30) {
+        // Свайп вправо
+        this.prev();
+      }
+    });
+  }
+  
   updateActiveSlide() {
     this.slides.forEach((slide) => slide.classList.remove("active")); // Деактивируем все слайды
     this.slides[this.currentIndex].classList.add("active"); // Активируем текущий слайд

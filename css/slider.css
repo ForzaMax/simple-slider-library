@@ -17,6 +17,7 @@
   align-items: center;
   text-align: center;
   background-color: #de6161;
+  transition: 0.3s;
 }
 
 .slide.active {
